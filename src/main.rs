@@ -1,92 +1,144 @@
-use std::io::stdin;
-use std::io::stdout;
-use std::io::Write;
+// TODO:
+// [x] Hangman Symbolic
+// [ ] Programming design
+use std::io::{self, Write, stdin};
+use rand::{distributions::Alphanumeric, Rng}; 
 
 fn main() {
-    //Introduction
-    let mut check: u32 = 0;
-    let mut input: u32;
-    let (mut word, mut guess, mut user_input,mut guess_char) = (String::new(),String::new(),String::new(),String::new());
+    let mut secret_word = String::new();
+    let mut check = String::new();
+    println!("1. Guess your own word");
+    println!("2. Let me generate a random word for you");
+    readline(&mut check);
 
-    println!("Enter the word u want the guess: ");
-    readline(&mut word);
-    println!(" ");
+    let check_number: u32 = check.trim().parse().expect("Something went wrong");
 
-    for _ in 0..word.len() {
-        print!("_");
+    if check_number == 1 {
+        println!("Give in the word u want to guess");
+        readline(&mut secret_word);
+    } else {
+        secret_word = rand::thread_rng()
+            .sample_iter(&Alphanumeric)
+            .take(7)
+            .map(char::from)
+            .collect();
     }
-    /////////////////
-    loop{
-        println!(" ");
-        println!("1: Do u want to guess a character ");
-        println!("2: Do u want to guess the word ");
-        readline(&mut user_input);
-        input = user_input.trim().parse().expect("Please give in a number");
 
-        if input == 1 {
-            loop {
-                let word_char: Vec<char> = word.chars().collect(); // Spliting Char chunks in array
-                readline(&mut guess_char);
-                let guessing_char = guess_char.chars().next(); // Reading first character of a String
+    let mut guessed_letters: Vec<char> = vec!['_'; secret_word.len()-1];
+    let mut attempts = 7;
 
-                if let Some(guessing_character) = guessing_char{
-                    for (i, char) in word_char.iter().enumerate() {
-                        if *char == guessing_character {
-                            println!("Du hast {} richtig geraten an der Stelle {}", i, char);
-                            check = 0;
-                        } else {
-                            println!("Diesen Buchstaben gibt es nicht");
-                            break;
-                        }
+    println!("Welcome to Hangman!");
+
+    loop {
+        println!("\nAttempts left: {}", attempts);
+        println!("Guessed letters: {}", guessed_letters.iter().collect::<String>());
+
+        let mut guess = String::new();
+        print!("Enter your guess: ");
+        io::stdout().flush().unwrap();
+        io::stdin().read_line(&mut guess).unwrap();
+        let guess = guess.trim().chars().next();
+
+        match guess {
+            Some(letter) => {
+                let mut found = false;
+                for (i, c) in secret_word.chars().enumerate() {
+                    if c == letter {
+                        guessed_letters[i] = letter;
+                        found = true;
                     }
                 }
-                
-                break
-            }
 
-        } else if input == 2 {
-            println!("Give your guess in");
-            readline(&mut guess);
-            match guess {
-                _ if guess == word =>{
-                    println!("You win!!");
-                    break;
-                },
-                _ => {
-                    println!("Try again");
-                    check = 5;
-                    break;
+                if !found {
+                    attempts -= 1;
+                    println!("Incorrect guess!");
+                    if attempts == 6 {println!("
+                                               '''
+  +---+
+  |   |
+      |
+      |
+      |
+      |
+========='''");
+                    } else if attempts == 5 {
+                        println!("'''
+  +---+
+  |   |
+  O   |
+      |
+      |
+      |
+========='''");
+                    } else if attempts == 4 {
+                        println!("'''
+  +---+
+  |   |
+  O   |
+  |   |
+      |
+      |
+========='''");
+                    } else if  attempts == 3 {
+                        println!("'''
+  +---+
+  |   |
+  O   |
+ /|   |
+      |
+      |
+========='''");
+                    } else if attempts == 2 {
+                        println!(r"'''
+  +---+
+  |   |
+  O   |
+ /|\  |
+      |
+      |
+========='''");
+                    } else if attempts == 1 {
+                        println!(r"'''
+  +---+
+  |   |
+  O   |
+ /|\  |
+ /    |
+      |
+========='''");
+                    } else if attempts == 0 {
+                        println!(r"'''
+  +---+
+  |   |
+  O   |
+ /|\  |
+ / \  |
+      |
+========='''");
+                    } {
+
+                    }
                 }
+            },
+            None => {
+                println!("Invalid input!");
+                continue;
             }
-        } else {
-            println!("Please give either 1 or 2");
+        }
+
+        if guessed_letters.iter().all(|&c| c != '_') {
+            println!("Congratulations! You guessed the word: {}", secret_word);
+            break;
+        }
+
+        if attempts == 0 {
+            println!("Game over! The word was: {}", secret_word);
+            break;
         }
     }
-
-    match check {
-        0 => println!("Good Job"),
-        1 => println!("L"),
-        2 => println!("LO"),
-        3 => println!("LOS"),
-        4 => println!("LOSE"),
-        5 => println!("LOSER \n You have LOST"),
-        _ => println!("Something went wrong"),
-    }
 }
-
-fn readline(input: &mut  String) {
-    stdout().flush().expect("Faild to read line");
-    stdin().read_line(input).expect("Faild to read line");
+fn readline (input: &mut String) {
+    stdin()
+        .read_line(input)
+        .expect("Something went wrong");
 }
-
-fn wrong_guess() {
-
-}
-
-fn compare() {
-
-}
-
-/*
-    readline(&mut guess);
-    */
