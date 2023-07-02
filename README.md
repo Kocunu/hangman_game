@@ -38,9 +38,9 @@ internet and many people recommendet to programm the hangman game in the termina
 
 3. After the welcome message we go into a loop 
     * The user now has to enter his guesses 
-    * The mutable variable **guess** first is declared into a string then it the line **io::stdout().flush().unwrap()** lets u input the letter after the message **Enter your gues: **
+    * The mutable variable **guess** first is declared into a string then it the line **io::stdout().flush().unwrap()** lets u input the letter after the message **Enter your gues:**
     * After the user inputs his guess the variable **guess** is transformed into a char with this line **let guess = guess.trim().chars().next()**
-4. The **match guess** is actualy just for errorhandling so if the user puts in something other then a string the message **Invalid input: ** shows
+4. The **match guess** is actualy just for errorhandling so if the user puts in something other then a string the message **Invalid input:** shows
     * The **some(letter)** checks if the user did input a word
     * The mutable variable **found** is at the beginning flase becomes the word is not guessed
     * Then we go into a loop where the input of the user is compared to the secret word 
